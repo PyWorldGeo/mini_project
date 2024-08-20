@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, Note
+from .models import User, Name
 from django.forms import ModelForm
 from django import forms
 
@@ -9,10 +9,10 @@ class MyUserCreationForm(UserCreationForm):
         fields = ['username', 'password1', 'password2']
 
 
-class NoteForm(ModelForm):
+class NameForm(ModelForm):
 
     class Meta:
-        model = Note
+        model = Name
         fields = '__all__'
 
 

@@ -1,20 +1,18 @@
 from django.shortcuts import render, redirect
-from .models import Note, User, Type
+from .models import Name, User, Type
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import MyUserCreationForm, NoteForm, UserForm
-#pip freeze > requirements.txt
-#pip install -r requirements.txt
-
-#pip install pipreqs
-#pipreqs
-#pipreqs --force
+from .forms import MyUserCreationForm, NameForm, UserForm
+from django.db.models import Q
 
 # Create your views here.
 def home(request):
-    notes = Note.objects.filter(creator=request.user.id)
-    context = {"notes": notes}
+    q = request.GET.get('q') if request.GET.get('q') != None else ""
+    names = Name.objects.filter(Q(name__icontains=q) | Q(description__icontains=q) | Q(type__type__icontains=q))
+
+    # names = Name.objects.all()
+    context = {"names": names}
 
     return render(request, 'base/home.html', context)
 
@@ -66,27 +64,27 @@ def register_page(request):
 def add_note(request):
     types = Type.objects.all()
 
-    form = NoteForm()
+    form = NameForm()
     if request.method == "POST":
-        form = NoteForm(request.POST)
+        form = NameForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('home')
         else:
             messages.error(request, "Book Already Exists!")
 
-    return render(request, 'base/add_note.html', {'form': form, 'types': types})
+    return render(request, 'base/add_name.html', {'form': form, 'types': types})
 
 
 
 
 def delete_note(request, id):
-    note = Note.objects.get(id=id)
+    name = Name.objects.get(id=id)
 
     if request.method == "POST":
-        note.delete()
+        name.delete()
         return redirect('home')
-    return render(request, 'base/delete.html', {'obj': note})
+    return render(request, 'base/delete.html', {'obj': name})
 
 
 @login_required(login_url='login')
